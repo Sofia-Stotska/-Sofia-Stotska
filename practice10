@@ -1,0 +1,125 @@
+<!-- <!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма зворотного зв’язку</title>
+</head>
+<body>
+
+<h2>Зворотний зв'язок</h2>
+
+<form method="post" action="">
+    <label>Ім'я:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br><br>
+
+    <label>Повідомлення:</label><br>
+    <textarea name="message" required></textarea><br><br>
+
+    <button type="submit" name="submit">Надіслати</button>
+</form>
+
+<?php
+if (($_POST['submit'])) {
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $message = trim($_POST['message']);
+
+    $errors = [];
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Невірний email!";
+    }
+    if (strlen($message) < 20) {
+        $errors[] = "Повідомлення має містити мінімум 20 символів!";
+    }
+    if (empty($errors)) {
+        echo "<p style='color:green;'>Повідомлення успішно надіслано!</p>";  
+    } else {
+        foreach ($errors as $error) {
+            echo "<p style='color:red;'>$error</p>";
+        }
+    }
+}
+?>
+
+</body>
+</html>
+ -->
+
+    <!DOCTYPE html>
+    <html lang="uk">
+    <head>
+        <meta charset="UTF-8">
+        <title>Замовлення</title>
+    </head>
+    <body>
+
+    <h2>Замовлення товару</h2>
+
+    <form method="post">
+
+    Ім’я: <input name="name"><br><br>
+
+    Email: <input name="email"><br><br>
+
+    Товар:
+    <select name="product">
+        <option value="Телефон">Телефон (10000 грн)</option>
+        <option value="Ноутбук">Ноутбук (25000 грн)</option>
+        <option value="Навушники">Навушники (2000 грн)</option>
+    </select><br><br>
+
+    Кількість: <input name="qty"><br><br>
+
+    <button>Замовити</button>
+
+    </form>
+
+    <?php
+    if($_SERVER['REQUEST_METHOD']=='POST'){
+
+
+        $name = htmlspecialchars(trim($_POST['name']));
+        $email = htmlspecialchars(trim($_POST['email']));
+        $product = $_POST['product'];
+        $qty = trim($_POST['qty']);
+
+        $errors = [];
+
+     
+        if(!$name) $errors[] = "Введіть ім’я";
+
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            $errors[] = "Невірний email";
+
+        if(!is_numeric($qty) || $qty<1||$qty > 100)
+            $errors[] = "Кількість 1-100";
+
+        $prices = [
+            "Телефон" => 10000,
+            "Ноутбук" => 25000,
+            "Навушники" => 2000
+        ];
+
+        if(empty($errors)){
+            $sum = $prices[$product] * $qty;
+
+            echo "<h3>Замовлення:</h3>";
+            echo "Ім’я: $name <br>";
+            echo "Email: $email <br>";
+            echo "Товар: $product <br>";
+            echo "Кількість: $qty <br>";
+            echo "Сума: $sum грн";
+        } else {
+            foreach($errors as $e){
+                echo "<p style='color:red'>$e</p>";
+            }
+        }
+    }
+    ?>
+
+    </body>
+    </html>
