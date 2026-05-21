@@ -1,0 +1,130 @@
+<?php
+session_start();
+
+$correct_login = "admin";
+$correct_password = "php123";
+
+
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
+$message = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $login = $_POST['login'];
+    $password = $_POST['password'];
+
+    if ($login == $correct_login && $password == $correct_password) {
+        $_SESSION['user'] = $login;
+
+    } else {
+
+        $message = "Неправильний логін або пароль!";
+
+    }
+}
+
+
+$ip = $_SERVER['REMOTE_ADDR'];
+?>
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизація PHP</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background: #f2f2f2;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .box {
+            width: 400px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="box">
+
+<?php if(isset($_SESSION['user'])): ?>
+
+    <h1 class="success">
+        Вітаю, <?php echo $_SESSION['user']; ?> !
+    </h1>
+
+    <p>Ви успішно увійшли в систему.</p>
+
+    <h3>Ваш IP: <?php echo $ip; ?></h3>
+
+    <br>
+
+    <a href="?logout=true">
+        <button>Вийти</button>
+    </a>
+
+<?php else: ?>
+
+    <h1>Форма авторизації</h1>
+
+    <form method="POST">
+
+        <input type="text" name="login" placeholder="Логін" required>
+
+        <input type="password" name="password" placeholder="Пароль" required>
+
+        <button type="submit">Увійти</button>
+
+    </form>
+
+    <p class="error"><?php echo $message; ?></p>
+
+    <h3>Ваш IP: <?php echo $ip; ?></h3>
+
+<?php endif; ?>
+
+</div>
+
+</body>
+</html>
