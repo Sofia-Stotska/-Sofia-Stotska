@@ -1,0 +1,130 @@
+<?php
+
+header("Content-Type: application/json");
+
+$file = "users.json";
+
+if (!file_exists($file)) {
+    file_put_contents($file, json_encode([]));
+}
+
+$users = json_decode(file_get_contents($file), true);
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+$request = $_SERVER['REQUEST_URI'];
+
+$request = explode('/', trim($request, '/'));
+
+$id = isset($request[1]) ? (int)$request[1] : null;
+
+
+
+// GET /users
+if ($method == 'GET' && $id === null) {
+    echo json_encode($users);
+    exit;
+}
+
+
+
+// GET /users/{id}
+if ($method == 'GET' && $id !== null) {
+
+    foreach ($users as $user) {
+        if ($user['id'] == $id) {
+            echo json_encode($user);
+            exit;
+        }
+    }
+
+    http_response_code(404);
+    echo json_encode(["message" => "Користувача не знайдено"]);
+    exit;
+}
+
+
+
+// POST /users
+if ($method == 'POST') {
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data['name']) || !isset($data['email'])) {
+        http_response_code(400);
+        echo json_encode(["message" => "Невірні дані"]);
+        exit;
+    }
+
+    $newUser = [
+        "id" => count($users) + 1,
+        "name" => $data['name'],
+        "email" => $data['email']
+    ];
+
+    $users[] = $newUser;
+
+    file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+
+    echo json_encode($newUser);
+    exit;
+}
+
+
+
+// PUT /users/{id}
+if ($method == 'PUT' && $id !== null) {
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    foreach ($users as &$user) {
+
+        if ($user['id'] == $id) {
+
+            if (isset($data['name'])) {
+                $user['name'] = $data['name'];
+            }
+
+            if (isset($data['email'])) {
+                $user['email'] = $data['email'];
+            }
+
+            file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+
+            echo json_encode($user);
+            exit;
+        }
+    }
+
+    http_response_code(404);
+    echo json_encode(["message" => "Користувача не знайдено"]);
+    exit;
+}
+
+
+
+// DELETE /users/{id}
+if ($method == 'DELETE' && $id !== null) {
+
+    foreach ($users as $key => $user) {
+
+        if ($user['id'] == $id) {
+
+            array_splice($users, $key, 1);
+
+            file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+
+            echo json_encode(["message" => "Користувача видалено"]);
+            exit;
+        }
+    }
+
+    http_response_code(404);
+    echo json_encode(["message" => "Користувача не знайдено"]);
+    exit;
+}
+
+
+
+http_response_code(400);
+echo json_encode(["message" => "Невірний запит"]);
